@@ -1,0 +1,144 @@
+<head>
+	<script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+	<script src="static/lib/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="static/js/jquery.metadata.js"></script>
+	<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.9.1/jquery.tablesorter.min.js"></script>
+	<script src="static/js/jquery.tablesorter.js"></script>
+    <title>PeercoinWisdom</title>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function() {
+            // Use a "/test" namespace.
+            // An application can open a connection on multiple namespaces, and
+            // Socket.IO will multiplex all those connections on a single
+            // physical channel. If you don't care about multiple channels, you
+            // can set the namespace to an empty string.
+            namespace = '/test';
+            // Connect to the Socket.IO server.
+            // The connection URL has the following format:
+            //     http[s]://<domain>:<port>[/<namespace>]
+            var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+            // Event handler for new connections.
+            // The callback function is invoked when a connection with the
+            // server is established.
+            socket.on('connect', function() {
+                socket.emit('my_event', {data: 'I\'m connected!'});
+            });
+            // Event handler for server sent data.
+            // The callback function is invoked whenever the server emits data
+            // to the client. The data is then displayed in the "Received"
+            // section of the page.
+            socket.on('my_response', function(msg) {
+                $('#log').append('<br>' + $('<div/>').text('Received #' + msg.count + ': ' + msg.data).html());
+            });
+
+		$(function(){
+			$('#keywords').tablesorter({
+				usNumberFormat : true}); 
+		});		 	
+			
+	    socket.on('update_table', function(msg) {
+		$('#bitcoin_last').text(msg.bitcoin.price_usd)
+		$('#bitcoin_volume').text(msg.bitcoin.volume)
+		$('#bitcoin_marketcap').text(msg.bitcoin.market_cap_usd)
+		$('#bitcoin_supply').text(msg.bitcoin.total_supply)
+		$('#bitcoin_1hr').text(msg.bitcoin.percent_change_1h)
+		$('#bitcoin_24hr').text(msg.bitcoin.percent_change_24h)
+		$('#bitcoin_7d').text(msg.bitcoin.percent_change_7d)
+
+		$('#litecoin_last').text(msg.litecoin.price_usd)
+		$('#litecoin_volume').text(msg.litecoin.volume)
+		$('#litecoin_marketcap').text(msg.litecoin.market_cap_usd)
+		$('#litecoin_supply').text(msg.litecoin.total_supply)
+		$('#litecoin_1hr').text(msg.litecoin.percent_change_1h)
+		$('#litecoin_24hr').text(msg.litecoin.percent_change_24h)
+		$('#litecoin_7d').text(msg.litecoin.percent_change_7d)
+
+		$('#peercoin_last').text(msg.peercoin.price_usd)
+		$('#peercoin_volume').text(msg.peercoin.volume)
+		$('#peercoin_marketcap').text(msg.peercoin.market_cap_usd)
+		$('#peercoin_supply').text(msg.peercoin.total_supply)
+		$('#peercoin_1hr').text(msg.peercoin.percent_change_1h)
+		$('#peercoin_24hr').text(msg.peercoin.percent_change_24h)
+		$('#peercoin_7d').text(msg.peercoin.percent_change_7d)
+		
+		$('#namecoin_last').text(msg.namecoin.price_usd)
+		$('#namecoin_volume').text(msg.namecoin.volume)
+		$('#namecoin_marketcap').text(msg.namecoin.market_cap_usd)
+		$('#namecoin_supply').text(msg.namecoin.total_supply)
+		$('#namecoin_1hr').text(msg.namecoin.percent_change_1h)
+		$('#namecoin_24hr').text(msg.namecoin.percent_change_24h)
+		$('#namecoin_7d').text(msg.namecoin.percent_change_7d)
+		
+		$('#novacoin_last').text(msg.novacoin.price_usd)
+		$('#novacoin_volume').text(msg.novacoin.volume) 
+		$('#novacoin_marketcap').text(msg.novacoin.market_cap_usd)
+		$('#novacoin_supply').text(msg.novacoin.total_supply)
+		$('#novacoin_1hr').text(msg.novacoin.percent_change_1h)
+		$('#novacoin_24hr').text(msg.novacoin.percent_change_24h)
+		$('#novacoin_7d').text(msg.novacoin.percent_change_7d)
+
+		$('#ethereum_last').text(msg.ethereum.price_usd)
+		$('#ethereum_volume').text(msg.ethereum.volume)
+		$('#ethereum_marketcap').text(msg.ethereum.market_cap_usd)
+		$('#ethereum_supply').text(msg.ethereum.total_supply)
+		$('#ethereum_1hr').text(msg.ethereum.percent_change_1h)
+		$('#ethereum_24hr').text(msg.ethereum.percent_change_24h)
+		$('#ethereum_7d').text(msg.ethereum.percent_change_7d)
+		
+		$('#dash_last').text(msg.dash.price_usd)
+		$('#dash_volume').text(msg.dash.volume)
+		$('#dash_marketcap').text(msg.dash.market_cap_usd)
+		$('#dash_supply').text(msg.dash.total_supply)
+		$('#dash_1hr').text(msg.dash.percent_change_1h)
+		$('#dash_24hr').text(msg.dash.percent_change_24h)
+		$('#dash_7d').text(msg.dash.percent_change_7d)
+	    });
+            // Interval function that tests message latency by sending a "ping"
+            // message. The server then responds with a "pong" message and the
+            // round trip time is measured.
+            var ping_pong_times = [];
+            var start_time;
+            window.setInterval(function() {
+                start_time = (new Date).getTime();
+                socket.emit('my_ping');
+            }, 1000);
+            // Handler for the "pong" message. When the pong is received, the
+            // time from the ping is stored, and the average of the last 30
+            // samples is average and displayed.
+            socket.on('my_pong', function() {
+                var latency = (new Date).getTime() - start_time;
+                ping_pong_times.push(latency);
+                ping_pong_times = ping_pong_times.slice(-30); // keep last 30 samples
+                var sum = 0;
+                for (var i = 0; i < ping_pong_times.length; i++)
+                    sum += ping_pong_times[i];
+                $('#ping-pong').text(Math.round(10 * sum / ping_pong_times.length) / 10);
+            });
+            // Handlers for the different forms in the page.
+            // These accept data from the user and send it to the server in a
+            // variety of ways
+            socket.on('key',function(msg){
+		$('#generate').text(msg.sentence)
+		$('#privkey').text(msg.privkey)
+		$('#pubkey').text(msg.pubkey)
+		$('#address').text(msg.address)
+		$('#export').html("<input type='submit' value='Export to Wallet' class='btn btn-outline btn-xl' style='color: black'>")
+
+		});
+
+            $('form#emit').submit(function(event) {
+                socket.emit('generate');
+                return false;
+            });
+
+            $('form#disconnect').submit(function(event) {
+                socket.emit('disconnect_request');
+                return false;
+            });
+        });
+    </script>
