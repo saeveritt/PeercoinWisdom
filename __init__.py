@@ -1,8 +1,6 @@
 from flask import Flask, render_template, request
-from urllib.request import urlopen
+from urllib2 import urlopen
 from json import loads
-from cryptotik import Btce
-from pypeerassets.kutil import Kutil
 from flask_socketio import SocketIO, emit
 from random import sample
 from hashlib import sha256
@@ -45,17 +43,6 @@ def background_thread():
 def main():
     get_markets() 
     return render_template("index.html")
-
-@socketio.on('generate', namespace='/test')
-def generate():
-    wordlist = open('bank.txt').read().split()
-    words = [wordlist[i] for i in sample(range(0,len(wordlist)),12)]
-    sentence = words[0]+ ' ' + ' '.join(words[1:])
-    privkey = sha256(sentence.encode()).hexdigest()
-    key = ""
-    pubkey = ""
-    address = ""
-    emit('key',{"privkey":privkey, "pubkey":pubkey, "sentence": sentence, "address":address})
 
 @socketio.on('my_ping', namespace='/test')
 def ping_pong():
