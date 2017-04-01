@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request
-from urllib2 import urlopen
-from json import loads
+from markets import *
 from flask_socketio import SocketIO, emit
 from random import sample
 from hashlib import sha256
@@ -9,23 +8,11 @@ async_mode = None
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
-data = {}
-
-def get_markets():
-    global data
-    data = {}
-    market_ids = {"peercoin","bitcoin","litecoin","ethereum","dash","novacoin","namecoin"}
-    markets = loads(urlopen('https://api.coinmarketcap.com/v1/ticker/?limit=100').read().decode())
-    for i in markets:
-        if i["id"] in market_ids:
-            i["volume"] = i["24h_volume_usd"]
-            i["available_supply"] = int(i["available_supply"].rstrip('.0'))
-            del i["24h_volume_usd"]
-            data[i["id"]] = i
-    return data
+data = get_markets()
 
 
 def background_thread():
+    global data
     """Example of how to send server generated events to clients."""
     count = 0
     while True:
@@ -37,12 +24,10 @@ def background_thread():
                       namespace='/test')
         socketio.sleep(5)
         
-
-
 @app.route("/")
 def main():
-    get_markets() 
-    return render_template("index.html")
+    global data
+    return render_template("index.html",data=data)
 
 @socketio.on('my_ping', namespace='/test')
 def ping_pong():
