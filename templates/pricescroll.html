@@ -1,0 +1,96 @@
+ <!DOCTYPE html>
+<!-- Styles -->
+<script>
+// polyfill
+window.requestAnimationFrame = (function(){
+  return  window.requestAnimationFrame       ||
+          window.webkitRequestAnimationFrame ||
+          window.mozRequestAnimationFrame    ||
+          function( callback ){
+            window.setTimeout(callback, 1000 / 60);
+          };
+})();
+
+var speed = 7000;
+(function currencySlide(){
+    var currencyPairWidth = $('.slideItem:first-child').outerWidth();
+    $(".slideContainer").animate({marginLeft:-currencyPairWidth},speed, 'linear', function(){
+                $(this).css({marginLeft:0}).find("li:last").after($(this).find("li:first"));
+        });
+        requestAnimationFrame(currencySlide);
+})();
+</script>
+
+<style style="text/css">
+.slider{
+    color: rgba(255,255,255,0.8);
+    width:100%;
+    overflow:hidden;
+    position:relative;
+    margin:0;
+}
+.edge{
+    left:0;
+    right:0;
+    top:0;
+    bottom:0;
+    position:absolute;
+    height:100%;
+    display:block;
+}
+.edge:before{
+    content:'';
+    position:absolute;
+    left:0;
+    width:25%;
+    height:100%;
+}
+.edge:after{
+    content:'';
+    position:absolute;
+    right:0;
+    width:25%;
+    height:100%;
+}
+ul{
+    background:rgba(0,0,0,0);
+    overflow:hidden;
+    width:1000%;
+    margin:0;
+}
+li{
+    list-style:none;
+    display:inline-block;
+    padding:0 50px;
+}
+</style>
+
+<!-- HTML -->	
+
+<div class='slider'>
+    <div class="edge"></div>
+<ul class="slideContainer" id="money_start">
+        <li class="slideItem" >
+                PPC/USD <b>$<span id="peercoin_last">{{ data.peercoin.price_usd }}</span></b>
+        </li>
+        <li class="slideItem">
+                BTC/USD <b>$<span id="bitcoin_last">{{ data.bitcoin.price_usd }}</span></b>
+        </li>
+        <li class="slideItem">
+                ETH/USD <b>$<span id="ethereum_last">{{ data.ethereum.price_usd }}</span></b>
+        </li>
+        <li class="slideItem">
+                LTC/USD <b>$<span id="litecoin_last">{{ data.litecoin.price_usd }}</span></b>
+        </li>
+        <li class="slideItem" >
+                NMC/USD <b>$<span id="namecoin_last">{{ data.namecoin.price_usd }}</span></b>
+        </li>
+        <li class="slideItem">
+                NVC/USD <b>$<span id="novacoin_last">{{ data.novacoin.price_usd }}</span></b>
+        </li>
+        <li class="slideItem">
+                DSH/USD <b>$<span id="dash_last">{{ data.dash.price_usd }}</span></b>
+        </li>
+</ul>
+</div>
+

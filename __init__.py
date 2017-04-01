@@ -29,6 +29,11 @@ def main():
     global data
     return render_template("index.html",data=data)
 
+@app.route('/chart/<exchange>/<pair>')
+def chartpage(exchange,pair):
+    return render_template("charts.html",exchange=exchange,pair=pair)
+
+
 @socketio.on('my_ping', namespace='/test')
 def ping_pong():
     emit('my_pong')
