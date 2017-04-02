@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
+from base64 import b64encode, b64decode
 from markets import *
 from flask_socketio import SocketIO, emit
 from random import sample
@@ -10,7 +11,7 @@ socketio = SocketIO(app, async_mode=async_mode)
 thread = None
 data = get_markets()
 
-c = sqlite3.connect('/home/saeveritt/Desktop/tbarchive.db')
+c = sqlite3.connect('/home/saeveritt/Documents/tbarchive.db')
 cur = c.cursor()
 tbdata = []
 
@@ -41,20 +42,42 @@ def chartpage(exchange,pair):
 @app.route('/tbarchive/', methods=['GET','POST'])
 def tbarchive():
     global tbdata
-    test = request.form.get('search')
-    select = request.form.get('option')
-    if select is not None:
-        return tbuser(select,test)
+    value = request.form.get('search')
+    option = request.form.get('option')
+    if (option is not None) and value:
+        value = b64encode(value.replace('"','&apos;').encode()).decode()
+        return redirect(url_for('tbuser',option=option,value=value))
     return render_template("tbarchive.html",tbdata=tbdata)
 
-@app.route('/tbarchive/<option>/<value>')
+@app.route('/tbarchive/<option>/<value>',methods=['GET','POST'])
 def tbuser(option,value):
-    if option == 'user':
-        cur.execute("SELECT name,msg,time from trollbox WHERE name == '{}' ORDER BY id DESC LIMIT 200".format(value))
-    if option == 'message':
+    global tbdata
+    value = b64decode(value.encode()).decode().replace('&apos;','"')
+
+    if option == 'msg':
         cur.execute("SELECT name,msg,time from trollbox WHERE msg LIKE '%{}%' ORDER BY id DESC LIMIT 200".format(value))
-    tbdata = cur.fetchall()
-    return render_template("tbarchive.html",tbdata=tbdata)
+        _tbdata = cur.fetchall()
+    elif option == 'name':
+        cur.execute("SELECT name,msg,time from trollbox WHERE name == '{}' ORDER BY id DESC LIMIT 200".format(value))
+        _tbdata = cur.fetchall()
+    
+    
+    _value = request.form.get('search')
+    _option = request.form.get('option')
+
+    if (_option is not None):
+        if _value is not None:
+            _value = b64encode(_value.replace('"','&apos;').encode()).decode()
+            if (_option == 'msg'):
+                return redirect(url_for('tbuser',option=_option,value=_value))
+
+            if (_option == 'name'):
+                return redirect(url_for('tbuser',option=_option,value=_value))
+        
+        else:
+            return render_template("tbarchive.html",tbdata=tbdata)
+    return render_template("tbarchive.html",tbdata=_tbdata)
+
 
 @socketio.on('my_ping', namespace='/test')
 def ping_pong():
