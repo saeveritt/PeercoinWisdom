@@ -24,6 +24,8 @@
             scrollTop: $("#{{msgid|safe}}").offset().top
             }, 1000);});
 		</script>
+	
+
 {% include 'head.html' %}
 
 </head>
@@ -38,31 +40,33 @@
                 <div class="col-sm-16" style="overflow-y: hidden">
                     
                     <div class="header-content">
-                        <div class="header-content-inner">
-                            
-                            <div style="padding-bottom: 5%;">
-                            <form method="post" action="" id="search">
-                            <select name="option" style="color: #f0f2f9; background-color: rgba(255,255,255,0.2);color:black">
-                                <option value="msg">Message</option>
-                                <option value="name">User</option>
-                            </select>
-                             
-                            <input name="search" style="background-color: rgba(255,255,255,0.2);border:none;" type="text" size="30" placeholder="Search..." />
-                            </form>
-                            {{ select }} {{ test }}
-                            </div>
-                            
-                            <div id="tablescroll" style="overflow-y: scroll; height: 50vh">
-                            <table class="table table-hover">
-                                {% for row in tbdata %}
-                                <tr id="{{ row[3] }}">
-                                    <th><a href="/tbarchive/name/{{ row[0] }}"> {{ row[0] }}</a></th>
-									<td style="width: 5vh;">  <a href="/tbarchive/id/{{ row[3] }}"><span class="glyphicon glyphicon-link"></span></a></td>
-                                    <td style="width: 70vh;">{{ row[1] }}</td>
-                                    <td style="width: 20vh;">{{ row[2] }}</a></td>
-                                </tr>
-                                {% endfor %}
-                            </table>
+                        <div class="header-content-inner" style="text-align:center">
+							<div style="display: inline-block;">
+                                {% for row in tbdata %}							
+								  <h3><b>{{ row[0] }}</b></h3>
+
+								  <p>{{ row[1] }}</p>
+
+								  {{ row[2] }}
+								  
+								<script>		
+								function copyToClipboard(elementId) {
+								
+								
+								  var aux = document.createElement("input");
+								  aux.setAttribute("value", "peercoinwisdom.com/tbarchive/id/{{ row[3] }}");
+								  document.body.appendChild(aux);
+								  aux.select();
+								  document.execCommand("copy");
+								
+								  document.body.removeChild(aux);
+								
+								}
+								</script>
+								<br><br>
+								<button class="btn btn-outline btn-xl" onclick="copyToClipboard('message')" style="background-color: transparent">Copy</button>
+								{% endfor %}
+							</div>
                             </div>
                         </div>
                     </div>

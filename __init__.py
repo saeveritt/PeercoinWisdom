@@ -9,9 +9,9 @@ async_mode = None
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
-data = get_markets()
+data = {}
 
-c = sqlite3.connect('/home/saeveritt/Documents/tbarchive.db')
+c = sqlite3.connect('/home/saeveritt/Desktop/tbarchive.db')
 cur = c.cursor()
 tbdata = []
 
@@ -21,14 +21,19 @@ def background_thread():
     count = 0
     while True:
         count += 1
-        cur.execute("SELECT name,msg,time from trollbox ORDER BY id DESC LIMIT 200 ")
+        cur.execute("SELECT name,msg,time,id from trollbox ORDER BY id DESC LIMIT 200 ")
         tbdata = cur.fetchall()
-        data = get_markets()
-        socketio.emit('update_table', data ,namespace='/test')
+        
+        try:
+            data = get_markets()
+            socketio.emit('update_table', data ,namespace='/test')
+        except:
+            pass
+        
         socketio.emit('my_response',
                       {'data': 'Server generated event', 'count': count},
                       namespace='/test')
-        socketio.sleep(5)
+        socketio.sleep(8)
         
 @app.route("/")
 def main():
@@ -39,43 +44,71 @@ def main():
 def chartpage(exchange,pair):
     return render_template("charts.html",exchange=exchange,pair=pair)
 
+@app.route('/tbarchive/name/')
+def tbname():
+    return redirect(url_for('tbarchive'))
+
+@app.route('/tbarchive/msg/')
+def tbmsg():
+    return redirect(url_for('tbarchive'))
+
 @app.route('/tbarchive/', methods=['GET','POST'])
 def tbarchive():
     global tbdata
     value = request.form.get('search')
     option = request.form.get('option')
+ 
+    cur.execute("SELECT name,msg,time,id from trollbox ORDER BY id DESC LIMIT 200 ")
+    tbdata = cur.fetchall()
+    
     if (option is not None) and value:
-        value = b64encode(value.replace('"','&apos;').encode()).decode()
+        if option != 'name':
+            value = b64encode(value.replace('"','&apos;').encode()).decode()
         return redirect(url_for('tbuser',option=option,value=value))
+    
     return render_template("tbarchive.html",tbdata=tbdata)
 
 @app.route('/tbarchive/<option>/<value>',methods=['GET','POST'])
 def tbuser(option,value):
     global tbdata
-    value = b64decode(value.encode()).decode().replace('&apos;','"')
+    _tbdata = tbdata
+    
+    if (option == 'id') and value:
+        value = int(value)
+        cur.execute("SELECT name,msg,time,id from trollbox WHERE id == {}".format(value))
+        _tbdata = cur.fetchall()
+        return render_template("tbmsg.html",tbdata=_tbdata)
+                               
+    if option == 'name':
+        cur.execute("SELECT name,msg,time,id from trollbox WHERE name == '{}' ORDER BY id DESC LIMIT 200".format(value))
+        _tbdata = cur.fetchall()
 
     if option == 'msg':
-        cur.execute("SELECT name,msg,time from trollbox WHERE msg LIKE '%{}%' ORDER BY id DESC LIMIT 200".format(value))
+        value = b64decode(value.encode()).decode().replace('&apos;','"')
+        values = value.split(" ")
+        query = "SELECT name,msg,time,id from trollbox WHERE msg LIKE '{}%' ".format(values[0])
+        del values[0]
+        for value in values:
+            query += "AND msg LIKE '{}%' ".format(value)
+            
+        cur.execute( query + "ORDER BY id DESC LIMIT 200")
         _tbdata = cur.fetchall()
-    elif option == 'name':
-        cur.execute("SELECT name,msg,time from trollbox WHERE name == '{}' ORDER BY id DESC LIMIT 200".format(value))
-        _tbdata = cur.fetchall()
-    
     
     _value = request.form.get('search')
     _option = request.form.get('option')
-
-    if (_option is not None):
-        if _value is not None:
-            _value = b64encode(_value.replace('"','&apos;').encode()).decode()
-            if (_option == 'msg'):
-                return redirect(url_for('tbuser',option=_option,value=_value))
-
-            if (_option == 'name'):
-                return redirect(url_for('tbuser',option=_option,value=_value))
+    
+    if _value is None:
+        return render_template("tbarchive.html",tbdata=_tbdata)
         
-        else:
-            return render_template("tbarchive.html",tbdata=tbdata)
+    elif _option is not None:
+   
+        if (_option == 'name'):
+            return redirect(url_for('tbuser',option=_option,value=_value))
+        
+        if (_option == 'msg'):
+            _value = b64encode(_value.replace('"','&apos;').encode()).decode()
+            return redirect(url_for('tbuser',option=_option,value=_value))
+    
     return render_template("tbarchive.html",tbdata=_tbdata)
 
 
