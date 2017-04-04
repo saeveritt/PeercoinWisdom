@@ -9,9 +9,9 @@ async_mode = None
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
-data = {}
+data = get_markets()
 
-c = sqlite3.connect('/home/saeveritt/Desktop/tbarchive.db')
+c = sqlite3.connect('/home/peer/tbarchive.db', check_same_thread=False)
 cur = c.cursor()
 tbdata = []
 
@@ -129,4 +129,4 @@ def test_connect():
     emit('my_response', {'data': 'Connected', 'count': 0})
 
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0")
+    socketio.run(app, host="0.0.0.0",debug=True)
