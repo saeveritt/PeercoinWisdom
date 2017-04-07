@@ -43,6 +43,11 @@
     <header>
 <section >
 <div style="padding-left :5%;padding-right:5%; height: 85vh">
+{% if warning is not none %}
+<div style="color: black;background-color: rgba(255,255,255,0.2);text-align: center">{{ warning }}</div>
+{% else %}
+{% endif %}
+
 {% include 'chart.html' %}
 </div>
 </section>

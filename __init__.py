@@ -42,7 +42,13 @@ def main():
 
 @app.route('/chart/<exchange>/<pair>')
 def chartpage(exchange,pair):
-    return render_template("charts.html",exchange=exchange,pair=pair)
+    extra = ""
+    warning = None
+    if '&PPC' in pair:
+        extra = "/BTCE:PPCBTC"
+        pair = pair[:-4]
+        warning = "ALT/PPC Pairs are only available for 1D or greater time interval charts."
+    return render_template("charts.html",exchange=exchange,pair=pair,extra=extra,warning=warning)
 
 @app.route('/tbarchive/name/')
 def tbname():

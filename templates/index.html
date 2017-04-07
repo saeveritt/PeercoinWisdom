@@ -18,10 +18,9 @@
                     
                     <div class="header-content">
                         <div class="header-content-inner">
-                            
+                            {% if data is not none %}
                             {% include 'markets.html' %}
-                            
-                            
+                            {% endif %}
                             <a href="/chart/BTCE/PPCUSD" id="emit" class="btn btn-outline btn-xl page-scroll">Get Started!</a>
                         </div>
                     </div>

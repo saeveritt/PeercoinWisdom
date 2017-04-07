@@ -3,7 +3,7 @@
 <script type="text/javascript">
 new TradingView.widget({
   "autosize": true,
-  "symbol": "{{ exchange }}:{{ pair }}",
+  "symbol": "{{ exchange }}:{{ pair }}{{ extra }}",
   "interval": "240",
   "timezone": "Etc/UTC",
   "theme": "White",
@@ -12,7 +12,6 @@ new TradingView.widget({
   "toolbar_bg": "rgba(241, 243, 246, 1)",
   "enable_publishing": false,
   "hide_side_toolbar": false,
-  "allow_symbol_change": true,
   "withdateranges": true,
   "hideideas": true,
   "studies": [
